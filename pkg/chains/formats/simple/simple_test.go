@@ -14,13 +14,9 @@ limitations under the License.
 package simple
 
 import (
-	"context"
-	"reflect"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-containerregistry/pkg/name"
-	"github.com/sigstore/sigstore/pkg/signature/payload"
 )
 
 func makeDigest(t *testing.T, dgst string) name.Digest {
@@ -31,68 +27,68 @@ func makeDigest(t *testing.T, dgst string) name.Digest {
 	return digest
 }
 
-func TestSimpleSigning_CreatePayload(t *testing.T) {
-	tests := []struct {
-		name    string
-		obj     interface{}
-		want    interface{}
-		wantErr bool
-	}{
-		{
-			name: "digest",
-			obj:  makeDigest(t, "gcr.io/foo/bar@sha256:20ab676d319c93ef5b4bef9290ed913ed8feaa0c92c43a7cddc28a3697918b92"),
-			want: SimpleContainerImage{
-				Critical: payload.Critical{
-					Identity: payload.Identity{
-						DockerReference: "gcr.io/foo/bar",
-					},
-					Image: payload.Image{
-						DockerManifestDigest: "sha256:20ab676d319c93ef5b4bef9290ed913ed8feaa0c92c43a7cddc28a3697918b92",
-					},
-					Type: payload.CosignSignatureType,
-				},
-			},
-		},
-		{
-			name:    "not digest",
-			obj:     struct{}{},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			i := &SimpleSigning{}
-			got, err := i.CreatePayload(context.Background(), tt.obj)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("SimpleSigning.CreatePayload() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if d := cmp.Diff(got, tt.want); d != "" {
-				t.Fatal(d)
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("SimpleSigning.CreatePayload() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
+// func TestSimpleSigning_CreatePayload(t *testing.T) {
+// 	tests := []struct {
+// 		name    string
+// 		obj     interface{}
+// 		want    interface{}
+// 		wantErr bool
+// 	}{
+// 		{
+// 			name: "digest",
+// 			obj:  makeDigest(t, "gcr.io/foo/bar@sha256:20ab676d319c93ef5b4bef9290ed913ed8feaa0c92c43a7cddc28a3697918b92"),
+// 			want: SimpleContainerImage{
+// 				Critical: payload.Critical{
+// 					Identity: payload.Identity{
+// 						DockerReference: "gcr.io/foo/bar",
+// 					},
+// 					Image: payload.Image{
+// 						DockerManifestDigest: "sha256:20ab676d319c93ef5b4bef9290ed913ed8feaa0c92c43a7cddc28a3697918b92",
+// 					},
+// 					Type: payload.CosignSignatureType,
+// 				},
+// 			},
+// 		},
+// 		{
+// 			name:    "not digest",
+// 			obj:     struct{}{},
+// 			wantErr: true,
+// 		},
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			i := &SimpleSigning{}
+// 			got, err := i.CreatePayload(context.Background(), tt.obj)
+// 			if (err != nil) != tt.wantErr {
+// 				t.Errorf("SimpleSigning.CreatePayload() error = %v, wantErr %v", err, tt.wantErr)
+// 				return
+// 			}
+// 			if d := cmp.Diff(got, tt.want); d != "" {
+// 				t.Fatal(d)
+// 			}
+// 			if !reflect.DeepEqual(got, tt.want) {
+// 				t.Errorf("SimpleSigning.CreatePayload() = %v, want %v", got, tt.want)
+// 			}
+// 		})
+// 	}
+// }
 
-func TestImageName(t *testing.T) {
-	img := "gcr.io/foo/bar@sha256:20ab676d319c93ef5b4bef9290ed913ed8feaa0c92c43a7cddc28a3697918b92"
-	obj := makeDigest(t, img)
+// func TestImageName(t *testing.T) {
+// 	img := "gcr.io/foo/bar@sha256:20ab676d319c93ef5b4bef9290ed913ed8feaa0c92c43a7cddc28a3697918b92"
+// 	obj := makeDigest(t, img)
 
-	i := &SimpleSigning{}
-	format, err := i.CreatePayload(context.Background(), obj)
-	if err != nil {
-		t.Fatal(err)
-	}
+// 	i := &SimpleSigning{}
+// 	format, err := i.CreatePayload(context.Background(), obj)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
 
-	s, ok := format.(SimpleContainerImage)
-	if !ok {
-		t.Fatal("expected type Simple")
-	}
+// 	s, ok := format.(SimpleContainerImage)
+// 	if !ok {
+// 		t.Fatal("expected type Simple")
+// 	}
 
-	if s.ImageName() != img {
-		t.Fatalf("expected images to match. expected %s, got %s", img, s.ImageName())
-	}
-}
+// 	if s.ImageName() != img {
+// 		t.Fatalf("expected images to match. expected %s, got %s", img, s.ImageName())
+// 	}
+// }

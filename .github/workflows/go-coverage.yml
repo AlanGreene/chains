@@ -58,3 +58,5 @@ jobs:
         with:
           coverage-artifact-name: "code-coverage"
           coverage-file-name: "coverage.txt"
+          root-package: github.com/tektoncd/chains
+          trim: github.com/tektoncd/chains
